@@ -2,12 +2,23 @@ import React, { useState, useEffect } from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
+import Notification from "./components/notification";
+import CreateBlog from "./components/CreacteBlog";
+import Togglable from "./components/togglable";
+// import LoginForm from "./components/loginForm";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [password, setPassword] = useState("");
   const [username, setUserName] = useState("");
   const [user, setUser] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [success, setSuccess] = useState("");
+  const [newBlog, setNewBLog] = useState({ title: "", author: "", url: "" });
+
+  //dynamic style
+  console.log(user);
+
 
   useEffect(() => {
     blogService.getAll().then((blog) => {
@@ -15,13 +26,19 @@ const App = () => {
     });
   }, []);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   // e.target.reset();
-  //   console.log("i am clicked", { userName, password });
-  //   setPassword("");
-  //   setUserName("");
-  // };
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      blogService.setToken(user.token);
+    }
+  }, []);
+
+  const handleLogout = async () => {
+    window.localStorage.removeItem("loggedBlogappUser");
+    setUser(null);
+  };
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -30,26 +47,95 @@ const App = () => {
         username,
         password,
       });
-      console.log({ user });
+      window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
       setUser(user);
+      blogService.setToken(user.token);
+      setSuccess("correct details");
       setUserName("");
       setPassword("");
+      setTimeout(() => {
+        setSuccess(null);
+      }, 5000);
     } catch (exception) {
-      console.log("wrong details");
+      setErrorMessage("Wrong userName or Password");
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
     }
   };
+  const handleAddBlog = async (e) => {
+    e.preventDefault();
+    try {
+      let user = await blogService.create({
+        title: newBlog.title,
+        author: newBlog.author,
+        url: newBlog.url,
+      });
+      setBlogs([...blogs, user]);
+      setSuccess(`${user.title} ${user.author} added`);
+      setTimeout(() => {
+        setSuccess(null);
+      }, 5000);
+    } catch (error) {
+      console.log(error);
+    }
+
+    setNewBLog({ title: "", url: "", author: "" });
+  };
+
+  const addLikes = async (id, blogObject) => {
+    // console.log({id, blogObject})
+    try
+    {
+
+      const newBlogUpdate= await blogService.update(id, blogObject);
+      setBlogs((prev) => {
+        return prev.map((blog) => {
+          return blog.id.toString() === id ?  newBlogUpdate : blog;
+        });
+      });
+    }
+    catch(error){
+      console.log("something went wrong");
+    }
+  };
+
+  const handleDelete = async (blogObject) => {
+
+    try
+    {
+      if(window.confirm(`Remove blog ${blogObject.title} by ${blogObject.author}`)){
+        await blogService.remove(blogObject.id);
+        setBlogs((prev) => prev.filter((blog) => blog.id !== blogObject.id));
+      }
+    }
+    catch(error){
+      setErrorMessage("Something went wrong");
+      setTimeout(() => {
+        setErrorMessage(null);
+      },5000);
+    }
+
+  };
+
+
+  const handleChange = ({ target }) => {
+    setNewBLog({ ...newBlog, [target.name]:target.value });
+  };
+
+
 
   ///helper function
 
   const login = () => {
     return (
       <div>
-        <h1>Log in to application</h1>
-
+        <h1 id="Log">Log in to application</h1>
         <form action="" onSubmit={handleLogin}>
           <div className="input">
             <span> UserName </span>
             <input
+              id="username"
               type="text"
               name={username}
               value={username}
@@ -59,13 +145,14 @@ const App = () => {
           <div>
             <span> Password </span>
             <input
+              id="password"
               type="password"
               name={password}
               value={password}
               onChange={({ target }) => setPassword(target.value)}
             />
           </div>
-          <button type="submit">login</button>
+          <button type="submit" id="login-button">login</button>
         </form>
       </div>
     );
@@ -73,15 +160,36 @@ const App = () => {
 
   return (
     <div>
+      <Notification message={errorMessage} success={success} />
+
       {user === null ? (
-        login()
+        <Togglable buttonlabel='Login'>
+          {login()}
+        </Togglable>
       ) : (
         <div>
-          <h2>blogs</h2>
-          <p>{console.log(user)}</p>
-          {blogs.map((blog) => (
-            <Blog key={blog.id} blog={blog} />
-          ))}
+          <h2 className="blogs"> blogs</h2>
+          <h4>
+            {user.name} is logged in{" "}
+            <button onClick={handleLogout}>logout</button>
+          </h4>
+
+          <h1>Create New Blog </h1>
+          <Togglable buttonlabel="create new blog">
+            <CreateBlog
+              newBlog={newBlog}
+              handleAddBlog={handleAddBlog}
+              handleChange={handleChange}
+            />
+          </Togglable>
+
+          {blogs.sort((a,b) => b.likes-a.likes).map((blog) => {
+            console.log(blog);
+            return  <Blog key={blog.id} blog={blog}
+              handleBlogUpdate={addLikes}
+              handleDelete={handleDelete}
+            />;
+          })}
         </div>
       )}
     </div>

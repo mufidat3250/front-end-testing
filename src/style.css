@@ -9,3 +9,23 @@ body {
 .input {
   margin-bottom: 6px;
 }
+.error {
+  padding: 0.8rem;
+  border: 2px solid red;
+  background-color: lightgray;
+  font-size: 20px;
+}
+.success {
+  padding: 0.8rem;
+  border: 2px solid green;
+  background-color: lightgray;
+  font-size: 20px;
+}
+.delete {
+  background-color: blue;
+  color: white;
+  border: none;
+  outline: none;
+  border-radius: 4px;
+  padding: 0.5rem;
+}
