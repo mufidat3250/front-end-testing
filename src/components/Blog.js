@@ -37,13 +37,9 @@ const Blog = ({ blog , handleBlogUpdate, handleDelete }) => {
   // console.log('i am the new update',blogUpdate.likes)
   return (
     <div style={blogStyle}>
-
-      <p id="title-author">
-        {title} {author}   <button id="view" onClick={handleToggle}>{buttonlabel}</button>
-      </p>
+      <p>  {title} {author} <button id="view" onClick={handleToggle}>{buttonlabel}</button></p>
 
       <div className="url-likes" style={showWhenVisible}>
-        <p>  {title} {author}</p>
         <p> url:{url}</p>
         <p> likes: {blogUpdate.likes}
           <button id='like' onClick={() => handleUpdate()}>like</button></p>

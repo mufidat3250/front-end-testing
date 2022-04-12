@@ -19,7 +19,6 @@ const App = () => {
   //dynamic style
   console.log(user);
 
-
   useEffect(() => {
     blogService.getAll().then((blog) => {
       setBlogs(blog);
@@ -63,6 +62,7 @@ const App = () => {
       }, 5000);
     }
   };
+  console.log(blogs);
   const handleAddBlog = async (e) => {
     e.preventDefault();
     try {
@@ -85,45 +85,39 @@ const App = () => {
 
   const addLikes = async (id, blogObject) => {
     // console.log({id, blogObject})
-    try
-    {
-
-      const newBlogUpdate= await blogService.update(id, blogObject);
+    try {
+      const newBlogUpdate = await blogService.update(id, blogObject);
       setBlogs((prev) => {
         return prev.map((blog) => {
-          return blog.id.toString() === id ?  newBlogUpdate : blog;
+          return blog.id.toString() === id ? newBlogUpdate : blog;
         });
       });
-    }
-    catch(error){
+    } catch (error) {
       console.log("something went wrong");
     }
   };
 
   const handleDelete = async (blogObject) => {
-
-    try
-    {
-      if(window.confirm(`Remove blog ${blogObject.title} by ${blogObject.author}`)){
+    try {
+      if (
+        window.confirm(
+          `Remove blog ${blogObject.title} by ${blogObject.author}`
+        )
+      ) {
         await blogService.remove(blogObject.id);
         setBlogs((prev) => prev.filter((blog) => blog.id !== blogObject.id));
       }
-    }
-    catch(error){
+    } catch (error) {
       setErrorMessage("Something went wrong");
       setTimeout(() => {
         setErrorMessage(null);
-      },5000);
+      }, 5000);
     }
-
   };
-
 
   const handleChange = ({ target }) => {
-    setNewBLog({ ...newBlog, [target.name]:target.value });
+    setNewBLog({ ...newBlog, [target.name]: target.value });
   };
-
-
 
   ///helper function
 
@@ -152,7 +146,9 @@ const App = () => {
               onChange={({ target }) => setPassword(target.value)}
             />
           </div>
-          <button type="submit" id="login-button">login</button>
+          <button type="submit" id="login-button">
+            login
+          </button>
         </form>
       </div>
     );
@@ -163,9 +159,7 @@ const App = () => {
       <Notification message={errorMessage} success={success} />
 
       {user === null ? (
-        <Togglable buttonlabel='Login'>
-          {login()}
-        </Togglable>
+        <Togglable buttonlabel="Login">{login()}</Togglable>
       ) : (
         <div>
           <h2 className="blogs"> blogs</h2>
@@ -183,13 +177,18 @@ const App = () => {
             />
           </Togglable>
 
-          {blogs.sort((a,b) => b.likes-a.likes).map((blog) => {
-            console.log(blog);
-            return  <Blog key={blog.id} blog={blog}
-              handleBlogUpdate={addLikes}
-              handleDelete={handleDelete}
-            />;
-          })}
+          {blogs
+            .sort((a, b) => b.likes - a.likes)
+            .map((blog) => {
+              return (
+                <Blog
+                  key={blog.id}
+                  blog={blog}
+                  handleBlogUpdate={addLikes}
+                  handleDelete={handleDelete}
+                />
+              );
+            })}
         </div>
       )}
     </div>
