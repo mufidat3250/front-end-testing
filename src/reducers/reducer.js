@@ -1,14 +1,11 @@
-export const allblogs = (action) => {
-  return {
-    type: "ALL_BLOG",
-  };
-};
+// export const allblogs = (action) => {
+//   return {
+//     type: "ALL_BLOG",
+//   };
+// };
 
-const blogsReducer = (state = [], action) => {
-  switch (action.type) {
-    case "ALL_BLOG":
-      return [...state];
-  }
-};
+// const blogsReducer = (state = [], action) => {
+//   return
+// };
 
-export default blogsReducer;
+// export default blogsReducer;

@@ -1,5 +1,6 @@
 import axios from "axios";
 const baseUrl = "/api/blogs";
+const url = "api/users";
 
 let token = null;
 
@@ -12,6 +13,11 @@ let config;
 const getAll = () => {
   const request = axios.get(baseUrl);
   return request.then((response) => response.data);
+};
+
+const getA = () => {
+  const request = axios.get(url);
+  return request.then( (response) => response.data);
 };
 
 const create = async (newObject) => {
@@ -49,4 +55,4 @@ const remove = async(id) => {
 
 
 // eslint-disable-next-line import/no-anonymous-default-export
-export default { getAll, setToken, create, update, remove };
+export default { getAll, setToken, create, update, remove , getA };

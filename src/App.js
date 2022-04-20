@@ -5,6 +5,7 @@ import loginService from "./services/login";
 import Notification from "./components/notification";
 import CreateBlog from "./components/CreacteBlog";
 import Togglable from "./components/togglable";
+
 // import LoginForm from "./components/loginForm";
 
 const App = () => {
@@ -15,9 +16,11 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [success, setSuccess] = useState("");
   const [newBlog, setNewBLog] = useState({ title: "", author: "", url: "" });
+  const [users, setUsers] = useState([]);
 
   //dynamic style
   console.log(user);
+  console.log(blogs);
 
   useEffect(() => {
     blogService.getAll().then((blog) => {
@@ -25,6 +28,13 @@ const App = () => {
     });
   }, []);
 
+  useEffect(() => {
+    blogService.getA().then((users) => {
+      setUsers(users);
+    });
+  }, []);
+
+  console.log(users, "i love coding");
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
@@ -169,6 +179,25 @@ const App = () => {
           </h4>
 
           <h1>Create New Blog </h1>
+
+          <h1>users</h1>
+          <table>
+            <tr>
+              <th></th>
+              <th>Blog created</th>
+            </tr>
+            {users.map((user, index) => {
+            // console.log(user.user[0].username, "user");
+              return (
+                <div key={`user${index}`}>
+
+                  <tr>
+                    <td>{user.username}</td> <td>{user.blog.length}</td>
+                  </tr>
+                </div>
+              );
+            })}
+          </table>
           <Togglable buttonlabel="create new blog">
             <CreateBlog
               newBlog={newBlog}
